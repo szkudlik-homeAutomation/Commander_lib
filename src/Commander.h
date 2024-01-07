@@ -400,27 +400,33 @@ public:
 		}else return 0;
 	}
 
-	bool getLong(uint32_t &_var)	{
+	bool getLong(uint32_t &_var, uint8_t *numOfDigits)	{
 		if(tryGet()){
 			//Parse it to the variable
 			String subStr = bufferString.substring(dataReadIndex);
 			uint32_t var = 0;
+			int digits = 0;
 			for (int i = 0; i < subStr.length(); i++)
 			{
 				char digit = subStr[i];
-				if (digit == ' ')
-					break;
 				if (digit < '0' || digit > '9')
-					return false;
+					break;
 				var *= 10;
 				var += digit - '0';
+				digits++;
 			}
 			//if there is no space next, set dataReadIndex to zero and return true - you parsed an int, but next time it will fail.
 			if(!findNextItem()) dataReadIndex = 0;//nextNumberDelimiter();
-			_var = var;
+			if (digits)
+			{
+				_var = var;
+				if (numOfDigits)
+					*numOfDigits = digits;
+			}
 			return true; //nextSpace();
 		}else return 0;
 	}
+	bool getLong(uint32_t &_var) { getLong(_var, NULL); }
 
 	bool getFloat(float &myFloat);  //Returns true if myFloat was updated with a value parsed from the command String
 	bool getDouble(double &myDouble);  //Returns true if myDouble was updated with a value parsed from the command String
